@@ -1,0 +1,9 @@
+{
+    "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "queueconstring": "Endpoint=sb://myservicebusqueue.servicebus.windows.net/;SharedAccessKeyName=receiver;SharedAccessKey=*******************",
+    "AzureWebJobs.TimerTriggeredFunction.Disabled": true
+  }
+}
