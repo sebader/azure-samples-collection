@@ -7,21 +7,27 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Microsoft.Azure.EventHubs;
+using System.Text;
 
 namespace SampleFunctions
 {
-    public static class Http2EventHubFunction
+    public static class Http2EventHubClientFunction
     {
-        [FunctionName("Http2EventHubFunction")]
+        private static string connectionString = Environment.GetEnvironmentVariable("EventHubConnectionAppSetting");
+        private static string eventHubName = Environment.GetEnvironmentVariable("eventhubname");
+
+        private static EventHubClient eventHubClient = EventHubClient.CreateFromConnectionString($"{connectionString};EntityPath={eventHubName}");
+
+        [FunctionName("Http2EventHubClientFunction")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "v2/{method}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "v3/{method}")] HttpRequest req, 
             string method,
-            [EventHub("%eventhubname%", Connection = "EventHubConnectionAppSetting")]IAsyncCollector<string> outputEventHubMessages,
             ILogger log)
         {
             log.LogInformation($"Received call {method}");
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-
+            
             if (method == "login")
             {
                 var sid = new { sid = Guid.NewGuid().ToString("N") };
@@ -34,7 +40,8 @@ namespace SampleFunctions
                 log.LogInformation("sid:" + req.Headers["sid"]);
                 log.LogInformation("body:" + requestBody);
 
-                await outputEventHubMessages.AddAsync(requestBody);
+                EventData data = new EventData(Encoding.UTF8.GetBytes(requestBody));
+                await eventHubClient.SendAsync(data);
                 return new OkObjectResult(null); ;
             }
             else if (method == "logout")

@@ -5,6 +5,7 @@
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "queueconstring": "Endpoint=sb://myservicebusqueue.servicebus.windows.net/;SharedAccessKeyName=receiver;SharedAccessKey=*******************",
     "AzureWebJobs.TimerTriggeredFunction.Disabled": true,
-    "EventHubConnectionAppSetting": "Endpoint=sb://sample.servicebus.windows.net/;SharedAccessKeyName=sender;SharedAccessKey=***************"
+    "EventHubConnectionAppSetting": "Endpoint=sb://sample.servicebus.windows.net/;SharedAccessKeyName=sender;SharedAccessKey=***************",
+    "eventhubname": "functiondemo"
   }
 }
