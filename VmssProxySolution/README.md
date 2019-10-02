@@ -20,7 +20,7 @@ Inside that field, look for the sample URL to the file and exchange it with your
 
 ## How to update DNS whitelist
 
-To update the whiteliste file (add new DNS names or remove existing ones) in a running VMSS, you can use the following commands, for example from the Azure Cloud Shell:
+To update the whitelist file (add new DNS names or remove existing ones) in a running VMSS, you can use the following commands, for example from the Azure Cloud Shell:
 
 Save the following content as `config.json`. Adjust the `fileUris` to point to your new whitelist file.
 
@@ -31,7 +31,7 @@ Save the following content as `config.json`. Adjust the `fileUris` to point to y
 }
 ````
 
-Now, execute the following command to run the custom script extension on each node of the VMSS. This will download the new white list file and replace the existing one. Afterwards it calls Squird to reconfigure to pull the new config.
+Now, execute the following command to run the custom script extension on each node of the VMSS. This will download the new white list file and replace the existing one. Afterwards it calls Squid to reconfigure to pull the new config.
 
 ````
 az vmss extension set --publisher Microsoft.Azure.Extensions --version 2.0 --name CustomScript --vmss-name {ScaleSetName} --settings @config.json -g {ResourceGroupName}
@@ -43,8 +43,8 @@ A few things to note about the presented template:
 
 - The template contains an Azure Bastion host for easy debugging. You can use that as a jump host onto the nodes of the VMSS. If you don't need or want that, just remove it from the template. It also deploys the required subnet `AzureBastionSubnet` into the VNET.
 
-- Of course, you might want to deploy the VMSS and the internal LB into an existing VNET. This is absolutley possible. You just need to modify the corresponding sections of the ARM template.
+- Of course, you might want to deploy the VMSS and the internal LB into an existing VNET. This is absolutely possible. You just need to modify the corresponding sections of the ARM template.
 
-- The template also deployed a public Load Balancer. This is neccessary, as otherwise the nodes of the VMSS, which have only a private IP, don't have any NAT-way to get out to the internet. The public load balancer thus contains a dummy-rule on port 65000. As long as nothing is running on that port on the nodes, this is not a problem.
+- The template also deployed a public Load Balancer. This is necessary, as otherwise the nodes of the VMSS, which have only a private IP, don't have any NAT-way to get out to the internet. The public load balancer thus contains a dummy-rule on port 65000. As long as nothing is running on that port on the nodes, this is not a problem.
 
 - This repo contains a sample cloud-init configuration file, which is much easier to read and modify then the string inside the `customData` field of the ARM template. To bring this config into a shape that can be used in the template, you have to remove all line breaks and escape chars. You can use this handy script to do that: https://github.com/anhowe/azure-util/blob/master/deployer/templates/vmsscloudinit/cloudinit/gen-oneline.py
