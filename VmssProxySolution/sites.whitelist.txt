@@ -1,0 +1,3 @@
+myiothub1.azure-devices.net
+teststorage.blob.core.windows.net
+cosmosdbsample.documents.azure.com

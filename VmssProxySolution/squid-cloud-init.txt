@@ -1,0 +1,16 @@
+#cloud-config
+
+package_upgrade: true
+packages:
+  - squid
+write_files:
+  - owner: root:root
+    path: /etc/squid/squid.conf
+    content: |
+      acl whitelist dstdomain "/etc/squid/sites.whitelist.txt"
+      http_access allow whitelist
+      http_access deny all
+      http_port 3128
+runcmd:
+  - sudo curl "https://{sample}.blob.core.windows.net/mycontainer/sites.whitelist.txt?st=2019-09-10T14%3A04%3A33Z&se=2019-09-11T14%3A04%3A33Z&sp=rl&sv=2018-03-28&sr=b&sig=*********" -o /etc/squid/sites.whitelist.txt
+  - sudo squid -k reconfigure
