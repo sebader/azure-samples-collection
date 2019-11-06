@@ -6,6 +6,10 @@
     "queueconstring": "Endpoint=sb://myservicebusqueue.servicebus.windows.net/;SharedAccessKeyName=receiver;SharedAccessKey=*******************",
     "AzureWebJobs.TimerTriggeredFunction.Disabled": true,
     "EventHubConnectionAppSetting": "Endpoint=sb://sample.servicebus.windows.net/;SharedAccessKeyName=sender;SharedAccessKey=***************",
-    "eventhubname": "functiondemo"
+    "eventhubname": "functiondemo",
+    "AdxExportClusterUrl": "https://myadxcluster.westeurope.kusto.windows.net",
+    "AdxExportDatabaseName": "sampledb",
+    "AdxExportStorageConnectionString": "https://mystorage.blob.core.windows.net/adxexport;2nvCjSXUx3**********************************i46UsRQ==",
+    "SendGridApiKey": "SG.LswL**********************nBKg"
   }
 }

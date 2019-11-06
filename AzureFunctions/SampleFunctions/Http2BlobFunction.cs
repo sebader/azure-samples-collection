@@ -15,7 +15,7 @@ namespace SampleFunctions
         [FunctionName("Http2BlobFunction")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req,
-            [Blob("myblobcontainer/{rand-guid}.txt", FileAccess.Write)] CloudBlockBlob blob,
+            [Blob("myblobcontainer/{rand-guid}.txt", FileAccess.ReadWrite)] CloudBlockBlob blob,
             ILogger log)
         {
             log.LogInformation("Received file upload request");
