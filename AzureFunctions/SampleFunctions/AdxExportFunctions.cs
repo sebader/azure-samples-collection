@@ -36,7 +36,7 @@ namespace SampleFunctions
             return Kcsb;
         }
 
-        [FunctionName("AdxExportFunction")]
+        [FunctionName(nameof(AdxExportFunctionHttpTriggered))]
         public static async Task<IActionResult> AdxExportFunctionHttpTriggered(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req,
         ILogger log,
@@ -63,7 +63,7 @@ namespace SampleFunctions
                 if (!string.IsNullOrEmpty(adxExportOperationId))
                 {
                     // Start durable orchestrator for the status checking
-                    var durableInstanceId = await starter.StartNewAsync("AdxExportOrchestrator", new Tuple<string, string>(adxExportOperationId, exportRequest.UserEmailAddress));
+                    var durableInstanceId = await starter.StartNewAsync(nameof(AdxExportOrchestrator), new Tuple<string, string>(adxExportOperationId, exportRequest.UserEmailAddress));
                     return new OkObjectResult("Request Accepted. Durable Instance=" + durableInstanceId);
                 }
                 else
@@ -81,41 +81,35 @@ namespace SampleFunctions
             public string AdxQuery { get; set; }
         }
 
-        [FunctionName("AdxExportOrchestrator")]
+        [FunctionName(nameof(AdxExportOrchestrator))]
         public static async Task AdxExportOrchestrator(
             [OrchestrationTrigger] IDurableOrchestrationContext context, ILogger log)
         {
+            log = context.CreateReplaySafeLogger(log);
+
             var input = context.GetInput<Tuple<string, string>>();
-            string path = await context.CallActivityAsync<string>("AdxExportStatusCheck", input.Item1);
+            string path = await context.CallActivityAsync<string>(nameof(AdxExportStatusCheck), input.Item1);
             if (path == null)
             {
                 // If export not yet completed, we create timer (=sleep) til we retry
                 var nextCheck = context.CurrentUtcDateTime.AddSeconds(10);
-                if (!context.IsReplaying)
-                {
-                    log.LogInformation($"Export not completed yet. Next check at {nextCheck.ToString("o")}");
-                }
+                log.LogInformation($"Export not completed yet. Next check at {nextCheck.ToString("o")}");
+
                 await context.CreateTimer(nextCheck, CancellationToken.None);
-                context.StartNewOrchestration("AdxExportOrchestrator", input);
+                context.StartNewOrchestration(nameof(AdxExportOrchestrator), input);
             }
             else if (path == "Error")
             {
-                if (!context.IsReplaying)
-                {
-                    log.LogError("Could not retrieve export result. Giving up");
-                }
+                log.LogError("Could not retrieve export result. Giving up");
             }
             else
             {
-                if (!context.IsReplaying)
-                {
-                    log.LogInformation("Retrieve path from export. Sending email to user now");
-                }
-                await context.CallActivityAsync("SendCompletionEmail", new Tuple<string, string>(path, input.Item2));
+                log.LogInformation("Retrieve path from export. Sending email to user now");
+                await context.CallActivityAsync(nameof(SendCompletionEmail), new Tuple<string, string>(path, input.Item2));
             }
         }
 
-        [FunctionName("AdxExportStatusCheck")]
+        [FunctionName(nameof(AdxExportStatusCheck))]
         public static async Task<string> AdxExportStatusCheck(
             [ActivityTrigger] string operationId, ILogger log)
         {
@@ -147,7 +141,7 @@ namespace SampleFunctions
             }
         }
 
-        [FunctionName("SendCompletionEmail")]
+        [FunctionName(nameof(SendCompletionEmail))]
         public static async Task SendCompletionEmail(
             [ActivityTrigger] Tuple<string, string> input,
             [SendGrid(ApiKey = "SendGridApiKey")] IAsyncCollector<SendGridMessage> messageCollector,

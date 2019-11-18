@@ -12,8 +12,8 @@ namespace SampleFunctions
 {
     public static class Http2BlobFunction
     {
-        [FunctionName("Http2BlobFunction")]
-        public static async Task<IActionResult> Run(
+        [FunctionName(nameof(Http2Blob))]
+        public static async Task<IActionResult> Http2Blob(
             [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req,
             [Blob("myblobcontainer/{rand-guid}.txt", FileAccess.ReadWrite)] CloudBlockBlob blob,
             ILogger log)

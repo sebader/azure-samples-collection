@@ -19,8 +19,8 @@ namespace SampleFunctions
         /// <param name="outputContainer"></param>
         /// <param name="log"></param>
         /// <returns></returns>
-        [FunctionName("UnzipBlob")]
-        public static async Task Run([BlobTrigger("input-zips/{inputBlobName}", Connection = "AzureWebJobsStorage")] Stream inputBlob, string inputBlobName,
+        [FunctionName(nameof(UnzipBlobFunction))]
+        public static async Task UnzipBlobFunction([BlobTrigger("input-zips/{inputBlobName}", Connection = "AzureWebJobsStorage")] Stream inputBlob, string inputBlobName,
             Binder binder,
             ILogger log)
         {
