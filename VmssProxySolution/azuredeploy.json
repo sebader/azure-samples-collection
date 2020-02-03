@@ -28,7 +28,7 @@
     },
     "instanceCount": {
       "type": "int",
-	  "defaultValue": 2,
+      "defaultValue": 2,
       "metadata": {
         "description": "Number of VM instances (100 or less)."
       },
@@ -53,9 +53,9 @@
     "addressPrefix": "10.0.0.0/16",
     "subnetPrefix": "10.0.0.0/24",
     "bastionSubnetPrefix": "10.0.1.0/24",
-	"bastionHostName": "[concat(variables('namingInfix'), '-bastion')]",
+    "bastionHostName": "[concat(variables('namingInfix'), '-bastion')]",
     "virtualNetworkName": "[concat(variables('namingInfix'), 'vnet')]",
-	"networkSecurityGroupsName": "[concat(variables('namingInfix'), 'nsg')]",
+    "networkSecurityGroupsName": "[concat(variables('namingInfix'), 'nsg')]",
     "publicIPAddressName": "[concat(variables('namingInfix'), 'pip')]",
     "publicIPAddressNameBastion": "[concat(variables('namingInfix'), 'pip-bastion')]",
     "subnetName": "[concat(variables('namingInfix'), 'subnet')]",
@@ -64,7 +64,7 @@
     "loadBalancerName": "[concat(variables('namingInfix'), '-publiclb')]",
     "iloadBalancerName": "[concat(variables('namingInfix'), '-internallb')]",
     "publicIPAddressID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]",
-	"publicIPAddressBastionID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressNameBastion'))]",
+    "publicIPAddressBastionID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressNameBastion'))]",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName'))]",
     "ilbID": "[resourceId('Microsoft.Network/loadBalancers',variables('iloadBalancerName'))]",
     "bePoolName": "[concat(variables('namingInfix'), 'bepool')]",
@@ -73,8 +73,8 @@
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
     "ifrontEndIPConfigID": "[concat(variables('ilbID'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
     "computeApiVersion": "2019-03-01",
-    "networkApiVersion": "2017-08-01",
-	"osType": {
+    "networkApiVersion": "2018-07-01",
+    "osType": {
       "publisher": "Canonical",
       "offer": "UbuntuServer",
       "sku": "[parameters('ubuntuOSVersion')]",
@@ -83,21 +83,22 @@
     "imageReference": "[variables('osType')]"
   },
   "resources": [
-	{
-		"type": "Microsoft.Network/networkSecurityGroups",
-		"apiVersion": "2019-06-01",
-		"name": "[variables('networkSecurityGroupsName')]",
-		"location": "[resourceGroup().location]",
-		"properties": {}
-	},
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('networkSecurityGroupsName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+      }
+    },
     {
       "type": "Microsoft.Network/virtualNetworks",
       "name": "[variables('virtualNetworkName')]",
       "location": "[resourceGroup().location]",
       "apiVersion": "[variables('networkApiVersion')]",
-	  "dependsOn":[
-	   "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupsName'))]"
-	  ],
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupsName'))]"
+      ],
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
@@ -109,12 +110,12 @@
             "name": "[variables('subnetName')]",
             "properties": {
               "addressPrefix": "[variables('subnetPrefix')]",
-			  "networkSecurityGroup": {
-                 "id": "[concat(resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupsName')))]"
+              "networkSecurityGroup": {
+                "id": "[concat(resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupsName')))]"
               }
             }
           },
-		  {
+          {
             "name": "AzureBastionSubnet",
             "properties": {
               "addressPrefix": "[variables('bastionSubnetPrefix')]"
@@ -128,23 +129,24 @@
       "name": "[variables('publicIPAddressName')]",
       "location": "[resourceGroup().location]",
       "apiVersion": "[variables('networkApiVersion')]",
-	  "sku": {
-		"name": "Standard"
-	  },
+      "sku": {
+        "name": "Standard"
+      },
       "properties": {
         "publicIPAllocationMethod": "Static",
         "dnsSettings": {
           "domainNameLabel": "[variables('longNamingInfix')]"
         }
       }
-    },{
+    },
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('publicIPAddressNameBastion')]",
       "location": "[resourceGroup().location]",
       "apiVersion": "[variables('networkApiVersion')]",
-	  "sku": {
-		"name": "Standard"
-	  },
+      "sku": {
+        "name": "Standard"
+      },
       "properties": {
         "publicIPAllocationMethod": "Static",
         "dnsSettings": {
@@ -160,9 +162,9 @@
       "dependsOn": [
         "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
       ],
-	  "sku": {
-		"name": "Standard"
-	  },
+      "sku": {
+        "name": "Standard"
+      },
       "properties": {
         "frontendIPConfigurations": [
           {
@@ -179,36 +181,28 @@
             "name": "[variables('bePoolName')]"
           }
         ],
-        
+
         "loadBalancingRules": [
+        ],
+        "probes": [
+        ],
+        "outboundRules": [
           {
+            "name": "SquidOutboundRule",
             "properties": {
-              "frontendIPConfiguration": {
-                "id": "[variables('frontEndIPConfigID')]"
-              },
+              "allocatedOutboundPorts": 0,
+              "protocol": "All",
+              "enableTcpReset": true,
+              "idleTimeoutInMinutes": 30,
               "backendAddressPool": {
                 "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/', variables('bePoolName'))]"
               },
-              "probe": {
-                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/probes/dummylbprobe')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 65000,
-              "backendPort": 65000,
-              "idleTimeoutInMinutes": 15
-            },
-            "name": "dummylbrule"
-          }
-        ],
-        "probes": [
-          {
-            "properties": {
-              "protocol": "Tcp",
-              "port": 22,
-              "intervalInSeconds": 15,
-              "numberOfProbes": 2
-            },
-            "name": "dummylbprobe"
+              "frontendIPConfigurations": [
+                {
+                  "id": "[variables('frontEndIPConfigID')]"
+                }
+              ]
+            }
           }
         ]
       }
@@ -221,9 +215,9 @@
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
       ],
-	  "sku": {
-		"name": "Standard"
-	  },
+      "sku": {
+        "name": "Standard"
+      },
       "properties": {
         "frontendIPConfigurations": [
           {
@@ -287,9 +281,9 @@
         "tier": "Standard",
         "capacity": "[parameters('instanceCount')]"
       },
-	  "zones": [
-		"1",
-		"3"
+      "zones": [
+        "1",
+        "3"
       ],
       "properties": {
         "overprovision": "true",
@@ -302,13 +296,13 @@
               "createOption": "FromImage",
               "caching": "ReadWrite"
             },
-             "imageReference": "[variables('imageReference')]"
+            "imageReference": "[variables('imageReference')]"
           },
           "osProfile": {
             "computerNamePrefix": "[variables('namingInfix')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
-			"customData": "[base64('#cloud-config\n\npackage_upgrade: true\npackages:\n  - squid\nwrite_files:\n  - owner: root:root\n    path: /etc/squid/squid.conf\n    content: |\n      acl whitelist dstdomain \"/etc/squid/sites.whitelist.txt\"\n      http_access allow whitelist\n      http_access deny all\n      http_port 3128\nruncmd:\n  - sudo curl \"https://{sample}.blob.core.windows.net/mycontainer/sites.whitelist.txt?st=2019-09-10T14%3A04%3A33Z&se=2019-09-11T14%3A04%3A33Z&sp=rl&sv=2018-03-28&sr=b&sig=*********\" -o /etc/squid/sites.whitelist.txt\n  - sudo squid -k reconfigure')]"
+            "customData": "[base64('#cloud-config\n\npackage_upgrade: true\npackages:\n  - squid\nwrite_files:\n  - owner: root:root\n    path: /etc/squid/squid.conf\n    content: |\n      acl whitelist dstdomain \"/etc/squid/sites.whitelist.txt\"\n      http_access allow whitelist\n      http_access deny all\n      http_port 3128\nruncmd:\n  - sudo curl \"https://{sample}.blob.core.windows.net/mycontainer/sites.whitelist.txt?st=2019-09-10T14%3A04%3A33Z&se=2019-09-11T14%3A04%3A33Z&sp=rl&sv=2018-03-28&sr=b&sig=*********\" -o /etc/squid/sites.whitelist.txt\n  - sudo squid -k reconfigure')]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
@@ -341,29 +335,29 @@
         }
       }
     },
-	{
-		"apiVersion": "2018-10-01",
-		"type": "Microsoft.Network/bastionHosts",
-		"name": "[variables('bastionHostName')]",
-		"location": "[resourceGroup().location]",
-		"dependsOn": [
-			"[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressNameBastion'))]"
-		],
-		"properties": {
-			"ipConfigurations": [
-				{
-					"name": "IpConf",
-					"properties": {
-						"subnet": {
-							"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/AzureBastionSubnet')]"
-						},
-						"publicIPAddress": {
-							"id": "[variables('publicIPAddressBastionID')]"
-						}
-					}
-				}
-			]
-		}
-	}
+    {
+      "apiVersion": "2018-10-01",
+      "type": "Microsoft.Network/bastionHosts",
+      "name": "[variables('bastionHostName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressNameBastion'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "IpConf",
+            "properties": {
+              "subnet": {
+                "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/AzureBastionSubnet')]"
+              },
+              "publicIPAddress": {
+                "id": "[variables('publicIPAddressBastionID')]"
+              }
+            }
+          }
+        ]
+      }
+    }
   ]
 }
