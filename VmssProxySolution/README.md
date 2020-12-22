@@ -45,6 +45,6 @@ A few things to note about the presented template:
 
 - Of course, you might want to deploy the VMSS and the internal LB into an existing VNET. This is absolutely possible. You just need to modify the corresponding sections of the ARM template.
 
-- The template also deployed a public Load Balancer. This is necessary, as otherwise the nodes of the VMSS, which have only a private IP, don't have any NAT-way to get out to the internet. The public load balancer thus contains a dummy-rule on port 65000. As long as nothing is running on that port on the nodes, this is not a problem.
+- The template also deployed a public Load Balancer. This is necessary, as otherwise the nodes of the VMSS, which have only a private IP, don't have any NAT-way to get out to the internet.
 
 - This repo contains a sample cloud-init configuration file, which is much easier to read and modify then the string inside the `customData` field of the ARM template. To bring this config into a shape that can be used in the template, you have to remove all line breaks and escape chars. You can use this handy script to do that: https://github.com/anhowe/azure-util/blob/master/deployer/templates/vmsscloudinit/cloudinit/gen-oneline.py
