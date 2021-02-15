@@ -10,6 +10,10 @@
     "AdxExportClusterUrl": "https://myadxcluster.westeurope.kusto.windows.net",
     "AdxExportDatabaseName": "sampledb",
     "AdxExportStorageConnectionString": "https://mystorage.blob.core.windows.net/adxexport;2nvCjSXUx3**********************************i46UsRQ==",
-    "SendGridApiKey": "SG.LswL**********************nBKg"
+    "SendGridApiKey": "SG.LswL**********************nBKg",
+    "serviceBusTopicName": "functiontest",
+    "serviceBusSubscriptionName": "functiontest",
+    "serviceBusTriggerConnection": "Endpoint=sb://myservicebustopic.servicebus.windows.net/;SharedAccessKeyName=function;SharedAccessKey=*******************"
+
   }
 }
