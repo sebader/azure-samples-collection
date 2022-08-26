@@ -1,8 +1,8 @@
 using System;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.EventHubs;
+using Azure.Messaging.ServiceBus;
+using Azure.Messaging.EventHubs;
 using System.Threading.Tasks;
 
 namespace SampleFunctions
@@ -10,7 +10,7 @@ namespace SampleFunctions
     public static class ServiceBus2EventHubFunction
     {
         [FunctionName("ServiceBus2EventHubFunction")]
-        public static async Task Run([ServiceBusTrigger("%serviceBusTopicName%", "%serviceBusSubscriptionName%", Connection = "serviceBusTriggerConnection")] Message [] incomingMessages,
+        public static async Task Run([ServiceBusTrigger("%serviceBusTopicName%", "%serviceBusSubscriptionName%", Connection = "serviceBusTriggerConnection")] ServiceBusMessage [] incomingMessages,
             [EventHub("%eventhubname%", Connection = "EventHubConnectionAppSetting")] IAsyncCollector<EventData> outputEventHubMessages,
             ILogger log)
         {
@@ -18,10 +18,10 @@ namespace SampleFunctions
             for (int i = 0; i < incomingMessages.Length; i++)
             {
                 log.LogInformation($"Processing message {i}");
-                Message message = incomingMessages[i];
+                ServiceBusMessage message = incomingMessages[i];
                 var outboundMessage = new EventData(message.Body);
                 // Copy user-defined properties
-                foreach(var prop in message.UserProperties)
+                foreach(var prop in message.ApplicationProperties)
                 {
                     outboundMessage.Properties.Add(prop.Key, prop.Value);
                 }

@@ -7,8 +7,9 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.Azure.EventHubs;
+using Azure.Messaging.EventHubs;
 using System.Text;
+using Azure.Messaging.EventHubs.Producer;
 
 namespace SampleFunctions
 {
@@ -17,7 +18,7 @@ namespace SampleFunctions
         private static string connectionString = Environment.GetEnvironmentVariable("EventHubConnectionAppSetting");
         private static string eventHubName = Environment.GetEnvironmentVariable("eventhubname");
 
-        private static EventHubClient eventHubClient = EventHubClient.CreateFromConnectionString($"{connectionString};EntityPath={eventHubName}");
+        private static EventHubProducerClient eventHubClient = new EventHubProducerClient($"{connectionString};EntityPath={eventHubName}");
 
         [FunctionName("Http2EventHubClientFunction")]
         public static async Task<IActionResult> Run(
@@ -41,7 +42,9 @@ namespace SampleFunctions
                 log.LogInformation("body:" + requestBody);
 
                 EventData data = new EventData(Encoding.UTF8.GetBytes(requestBody));
-                await eventHubClient.SendAsync(data);
+                var batch = await eventHubClient.CreateBatchAsync();
+                batch.TryAdd(data);
+                await eventHubClient.SendAsync(batch);
                 return new OkObjectResult(null); ;
             }
             else if (method == "logout")

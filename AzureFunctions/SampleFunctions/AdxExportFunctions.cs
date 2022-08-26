@@ -10,7 +10,6 @@ using Kusto.Data.Net.Client;
 using Kusto.Data.Common;
 using Kusto.Cloud.Platform.Data;
 using System.Linq;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System.Threading;
 using SendGrid.Helpers.Mail;
@@ -24,17 +23,6 @@ namespace SampleFunctions
         private readonly static string adxClusterUrl = Environment.GetEnvironmentVariable("AdxExportClusterUrl");
         private readonly static string adxDatabaseName = Environment.GetEnvironmentVariable("AdxExportDatabaseName");
         private readonly static string storageConnectionString = Environment.GetEnvironmentVariable("AdxExportStorageConnectionString");
-
-        private static KustoConnectionStringBuilder Kcsb = null;
-        private static async Task<KustoConnectionStringBuilder> GetKustoConnectionStringBuilder()
-        {
-            if (Kcsb != null)
-                return Kcsb;
-
-            var token = await new AzureServiceTokenProvider().GetAccessTokenAsync(adxClusterUrl);
-            Kcsb = new KustoConnectionStringBuilder(adxClusterUrl).WithAadApplicationTokenAuthentication(token);
-            return Kcsb;
-        }
 
         [FunctionName(nameof(AdxExportFunctionHttpTriggered))]
         public static async Task<IActionResult> AdxExportFunctionHttpTriggered(
@@ -51,7 +39,7 @@ namespace SampleFunctions
                 return new BadRequestObjectResult("Invalid ADX export request. Check your parameters");
             }
 
-            using (var client = KustoClientFactory.CreateCslAdminProvider(await GetKustoConnectionStringBuilder()))
+            using (var client = KustoClientFactory.CreateCslAdminProvider(adxClusterUrl))
             {
                 // TODO: Write actual query from user input
                 var exportQuery = CslCommandGenerator.GenerateExportCommand(new[] { storageConnectionString }, "datatable1 | take 100", true, true);
@@ -113,7 +101,7 @@ namespace SampleFunctions
         public static async Task<string> AdxExportStatusCheck(
             [ActivityTrigger] string operationId, ILogger log)
         {
-            using (var client = KustoClientFactory.CreateCslAdminProvider(await GetKustoConnectionStringBuilder()))
+            using (var client = KustoClientFactory.CreateCslAdminProvider(adxClusterUrl))
             {
                 var operationQuery = CslCommandGenerator.GenerateOperationsShowCommand(Guid.Parse(operationId));
                 var resultReader = new ObjectReader<OperationsShowCommandResult>(client.ExecuteControlCommand(adxDatabaseName, operationQuery));
