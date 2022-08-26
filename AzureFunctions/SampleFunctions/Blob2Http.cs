@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace SampleFunctions
 {
@@ -21,8 +22,7 @@ namespace SampleFunctions
         {
             if (blobContent == null)
             {
-                // TODO return error page:
-                return new OkResult();
+                return new NotFoundResult();
             }
             else
             {
@@ -36,7 +36,7 @@ namespace SampleFunctions
                 catch (Exception e)
                 {
                     log.LogError(e, "Error returning blobcontent");
-                    throw;
+                    return new InternalServerErrorResult();
                 }
             }
         }
